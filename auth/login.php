@@ -1,5 +1,7 @@
 <?php
-require_once __DIR__ . '/../includes/header.php';
+if (session_status() == PHP_SESSION_NONE) session_start();
+require_once __DIR__ . '/../functions.php';
+
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $identity = trim($_POST['identity'] ?? '');
@@ -45,6 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     if (!empty($errors)) set_flash('error', implode('<br>', $errors));
 }
+
+require_once __DIR__ . '/../includes/header.php';
 ?>
 <div class="row justify-content-center my-5">
   <div class="col-md-6">

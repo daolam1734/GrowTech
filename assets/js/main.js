@@ -1,5 +1,44 @@
+// Falling blossoms effect
+function initBlossoms() {
+  console.log("GrowTech: Tet blossoms initialized");
+  const createBlossom = () => {
+    const blossom = document.createElement('div');
+    blossom.className = 'blossom';
+    const types = ['🌸', '🌼', '🧧', '✨'];
+    blossom.innerHTML = types[Math.floor(Math.random() * types.length)];
+    
+    const startLeft = Math.random() * 100;
+    blossom.style.left = startLeft + 'vw';
+    blossom.style.fontSize = (Math.random() * 15 + 20) + 'px';
+    blossom.style.position = 'fixed';
+    blossom.style.top = '-50px';
+    blossom.style.zIndex = '10000';
+    blossom.style.pointerEvents = 'none';
+    blossom.style.color = '#ffc107'; // Fallback color for stars
+    
+    const duration = Math.random() * 5 + 7;
+    blossom.style.animation = `fall ${duration}s linear forwards`;
+    
+    // Ensure it's added to the very end of body
+    document.body.appendChild(blossom);
+
+    // Fallback removal
+    setTimeout(() => {
+      if (blossom.parentNode) blossom.remove();
+    }, duration * 1000 + 1000);
+  };
+
+  // Initial batch
+  for(let i = 0; i < 15; i++) {
+    setTimeout(createBlossom, Math.random() * 3000);
+  }
+  setInterval(createBlossom, 600);
+}
+
 // Header interactions: search suggestions, cart hover, sticky shrink, mobile offcanvas
 document.addEventListener('DOMContentLoaded', function () {
+  initBlossoms();
+  
   // Debounce helper
   function debounce(fn, delay) {
     let t;
@@ -49,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function () {
     selected = -1;
     suggestionsBox.innerHTML = list.map(it => `
       <a href="/weblaptop/product.php?id=${it.id}" class="d-flex suggestion-item p-2 align-items-center" role="option">
-        <img src="${it.image || 'https://via.placeholder.com/80x60'}" width="60" height="45" class="me-2" alt="">
+        <img src="${it.image || 'https://placehold.co/80x60?text=No+Image'}" width="60" height="45" class="me-2" alt="">
         <div class="flex-fill">
           <div class="small text-muted">${it.brand || ''} <span class="mx-1">•</span> ${it.sku}</div>
           <div class="fw-semibold">${it.name}</div>

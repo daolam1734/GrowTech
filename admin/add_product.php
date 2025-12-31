@@ -11,9 +11,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $price = (float)$_POST['price'];
     $stock = (int)$_POST['stock'];
     $image = $_POST['image'] ?? '';
-    $stmt = $pdo->prepare("INSERT INTO products (name, description, price, image, stock) VALUES (?, ?, ?, ?, ?)");
-    $stmt->execute([$name, $desc, $price, $image, $stock]);
-    header('Location: products.php'); exit;
+    
+    $pdo->beginTransaction();
+    try {
+        $stmt = $pdo->prepare("INSERT INTO products (name, description, price, stock) VALUES (?, ?, ?, ?)");
+        $stmt->execute([$name, $desc, $price, $stock]);
+        $product_id = $pdo->lastInsertId();
+        
+        if ($image) {
+            $stmt_img = $pdo->prepare("INSERT INTO product_images (product_id, url, position) VALUES (?, ?, 0)");
+            $stmt_img->execute([$product_id, $image]);
+        }
+        $pdo->commit();
+        header('Location: products.php'); exit;
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        $error = "Lỗi: " . $e->getMessage();
+    }
 }
 ?>
 <div class="row">

@@ -266,13 +266,13 @@ ON DUPLICATE KEY UPDATE cpu=VALUES(cpu);
 
 -- Images
 INSERT IGNORE INTO `product_images` (`product_id`,`url`,`alt`,`position`)
-SELECT p.id,'https://via.placeholder.com/600x400?text=Ultrabook+Alpha','Ultrabook Alpha - main',0 FROM products p WHERE p.sku='ULTRA-001';
+SELECT p.id,'https://placehold.co/600x400?text=Ultrabook+Alpha','Ultrabook Alpha - main',0 FROM products p WHERE p.sku='ULTRA-001';
 
 INSERT IGNORE INTO `product_images` (`product_id`,`url`,`alt`,`position`)
-SELECT p.id,'https://via.placeholder.com/600x400?text=Gaming+Beast','Gaming Beast - main',0 FROM products p WHERE p.sku='GAME-002';
+SELECT p.id,'https://placehold.co/600x400?text=Gaming+Beast','Gaming Beast - main',0 FROM products p WHERE p.sku='GAME-002';
 
 INSERT IGNORE INTO `product_images` (`product_id`,`url`,`alt`,`position`)
-SELECT p.id,'https://via.placeholder.com/600x400?text=Office+Pro','Office Pro - main',0 FROM products p WHERE p.sku='OFF-003';
+SELECT p.id,'https://placehold.co/600x400?text=Office+Pro','Office Pro - main',0 FROM products p WHERE p.sku='OFF-003';
 
 -- Users (admin created via create_db.php is recommended; we add a sample customer)
 -- Note: Replace the password with a proper hash produced by PHP: php -r "echo password_hash('password', PASSWORD_DEFAULT).PHP_EOL;"
@@ -571,7 +571,7 @@ SELECT p.id,'Intel Core i7-1185G7','16GB LPDDR4x','512GB SSD','Intel Iris Xe','1
 
 -- Ảnh sản phẩm (placeholder)
 INSERT IGNORE INTO `product_images` (`product_id`,`url`,`alt`,`position`)
-SELECT p.id, CONCAT('https://via.placeholder.com/800x600?text=', REPLACE(p.name,' ','+')), CONCAT(p.name, ' - hình chính'), 0 FROM products p WHERE p.sku IN ('DELLXPS13','MACBOOKAIR2022','ASUSROG14','THINKPADX1','DELLINSPIRON15','PAVILIONX360','RAZERBLADE15','PREDATORHELIOS','XPS15','SURFACELAPTOP4');
+SELECT p.id, CONCAT('https://placehold.co/800x600?text=', REPLACE(p.name,' ','+')), CONCAT(p.name, ' - hình chính'), 0 FROM products p WHERE p.sku IN ('DELLXPS13','MACBOOKAIR2022','ASUSROG14','THINKPADX1','DELLINSPIRON15','PAVILIONX360','RAZERBLADE15','PREDATORHELIOS','XPS15','SURFACELAPTOP4');
 
 -- Kết thúc phần cập nhật sản phẩm mẫu
 

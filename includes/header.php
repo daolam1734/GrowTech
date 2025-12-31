@@ -1,204 +1,134 @@
-<?php
+﻿<?php
 if (session_status() == PHP_SESSION_NONE) session_start();
-require_once __DIR__ . '/../functions.php';
+require_once __DIR__ . "/../functions.php";
 ?>
 <!doctype html>
 <html lang="vi">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>WebLaptop - Cửa hàng laptop đơn giản</title>
+  <title>GrowTech - Chuẩn công nghệ – vững niềm tin</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <link href="/weblaptop/assets/css/style.css" rel="stylesheet">
+  <style>
+    :root { 
+      --tet-red: #d32f2f; 
+      --tet-gold: #ffc107;
+      --tet-dark-red: #b71c1c;
+    }
+    .tet-header { 
+      background: linear-gradient(135deg, var(--tet-red), var(--tet-dark-red)); 
+      color: #fff; 
+      border-bottom: 4px solid var(--tet-gold);
+      position: relative;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    .tet-header a { color: #fff; text-decoration: none; font-size: 13px; }
+    .tet-header a:hover { color: var(--tet-gold); }
+    .search-bar-container { background: #fff; border-radius: 25px; padding: 3px; display: flex; flex-grow: 1; margin: 0 50px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); }
+    .search-input { border: none; flex-grow: 1; padding: 10px 20px; outline: none; border-radius: 25px 0 0 25px; }
+    .search-btn { background: var(--tet-red); color: #fff; border: none; padding: 0 25px; border-radius: 0 25px 25px 0; transition: all 0.3s; }
+    .search-btn:hover { background: var(--tet-dark-red); transform: scale(1.05); }
+    .cart-icon { font-size: 28px; position: relative; margin-left: 20px; color: var(--tet-gold) !important; transition: transform 0.3s; }
+    .cart-icon:hover { transform: scale(1.1); }
+    .cart-badge { position: absolute; top: -5px; right: -10px; background: var(--tet-gold); color: var(--tet-red); border-radius: 10px; padding: 0 6px; font-size: 12px; font-weight: bold; border: 1px solid var(--tet-red); }
+    .nav-top { font-size: 13px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .logo-text { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; letter-spacing: 1px; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
+    .slogan { font-size: 0.8rem; color: var(--tet-gold); font-style: italic; margin-top: -5px; }
+    .tet-decoration { position: absolute; pointer-events: none; opacity: 0.15; font-size: 2rem; }
+    
+    #search-suggestions {
+      position: absolute; z-index: 1200; left: 0; right: 0; top: 100%; background: #fff; border: 1px solid #e9e9e9; border-radius: 6px; display: none; max-height: 420px; overflow: auto; box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    }
+    #search-suggestions.show { display: block; }
+    .suggestion-item { text-decoration: none; color: inherit; border-bottom: 1px solid #f5f5f5; }
+    .suggestion-item:hover, .suggestion-item.active { background: #f7f9ff; }
+
+    /* Falling blossoms effect */
+    .blossom {
+      position: fixed;
+      top: -50px;
+      pointer-events: none;
+      z-index: 9999;
+      user-select: none;
+      animation: fall linear infinite;
+    }
+    @keyframes fall {
+      0% { 
+        transform: translateY(0) translateX(0) rotate(0deg); 
+        opacity: 0; 
+      }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { 
+        transform: translateY(105vh) translateX(100px) rotate(360deg); 
+        opacity: 0; 
+      }
+    }
+  </style>
 </head>
 <body>
-<a class="skip-link visually-hidden-focusable" href="#main-content">Bỏ qua sang nội dung</a>
-<!-- Top Bar -->
-<div class="topbar bg-light small text-muted">
-  <div class="container d-flex justify-content-between align-items-center py-1">
-    <div>
-      <span class="me-3">Hotline: <a href="tel:19001234">1900 1234</a></span>
-      <a href="/weblaptop/returns.php" class="me-2">Chính sách đổi trả</a>
-      <a href="/weblaptop/shipping.php">Giao hàng</a>
-    </div>
-    <div>
-      <?php if (!empty($_SESSION['user_id'])): ?>
-        <a href="/weblaptop/account.php" class="me-2">Xin chào, <?php echo htmlspecialchars(
-          isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'Người dùng'
-        ); ?></a>
-        <a href="/weblaptop/auth/logout.php" class="me-2">Đăng xuất</a>
-      <?php else: ?>
-        <a href="/weblaptop/auth/login.php" class="me-2">Đăng nhập</a>
-        <a href="/weblaptop/auth/register.php" class="me-2">Đăng ký</a>
-      <?php endif; ?>
-      <a href="?lang=vi" class="me-1">VN</a> | <a href="?lang=en" class="ms-1">EN</a>
-    </div>
-  </div>
-</div>
-<?php if (function_exists('display_flash')) display_flash(); ?>
 
-<!-- Main Header -->
-<header class="site-main-header bg-white border-bottom" role="banner">
-  <div class="container d-flex align-items-center justify-content-between py-3">
-    <div class="d-flex align-items-center">
-      <button id="mobile-menu-toggle" class="btn btn-outline-secondary d-lg-none me-2" type="button" aria-controls="mobileMenu" aria-expanded="false">
-        <i class="bi bi-list"></i>
-      </button>
-      <a class="navbar-brand fw-bold text-dark me-3" href="/weblaptop">WebLaptop</a>
-    </div>
+<header class="tet-header pb-3">
+  <!-- Decorative elements -->
+  <div class="tet-decoration" style="top: 10px; left: 5%;">🌸</div>
+  <div class="tet-decoration" style="bottom: 10px; right: 5%;">🧧</div>
 
-    <div id="header-search" class="flex-grow-1 mx-3 search-col" role="search">
-      <form action="/weblaptop/index.php" method="get" class="d-flex" role="search" aria-label="Tìm kiếm sản phẩm">
-        <input id="header-search-input" name="q" class="form-control" placeholder="Tìm laptop theo tên, CPU, RAM, SSD, GPU..." aria-label="Tìm kiếm">
-        <button class="btn btn-primary ms-2" type="submit">Tìm</button>
-      </form>
-      <div id="search-suggestions" aria-hidden="true" role="listbox"></div>
-    </div>
-
-    <div class="d-flex align-items-center gap-2">
-      <a href="/weblaptop/notifications.php" class="btn btn-light d-none d-md-inline-block" title="Thông báo" aria-label="Thông báo"><i class="bi bi-bell"></i></a>
-
-      <div class="header-cart" id="header-cart" role="group" aria-label="Giỏ hàng">
-        <a id="header-cart-btn" href="/weblaptop/cart.php" class="btn btn-light position-relative" title="Giỏ hàng" aria-haspopup="true" aria-expanded="false">
-          <i class="bi bi-cart3" aria-hidden="true"></i>
-          <span class="badge bg-danger" id="header-cart-count"><?php echo isset($_SESSION['cart']) ? array_sum($_SESSION['cart']) : 0; ?></span>
-        </a>
-        <div id="header-cart-dropdown" class="dropdown-panel" aria-hidden="true">
-          <div class="p-2">
-            <?php
-              $cart = isset($_SESSION['cart']) ? $_SESSION['cart'] : [];
-              if (!$cart) {
-                echo '<div class="text-center text-muted p-3">Giỏ hàng trống</div>';
-              } else {
-                $total = 0;
-                foreach ($cart as $pid => $qty) {
-                  $prod = getProduct($pid);
-                  if (!$prod) continue;
-                  $subtotal = $prod['price'] * $qty;
-                  $total += $subtotal;
-                  $img = 'https://via.placeholder.com/80x60?text=No+Image';
-                  // safe fetch image if function exists
-                  if (function_exists('getProductImage')) {
-                    $i = getProductImage($prod['id']);
-                    if ($i) $img = $i;
-                  }
-                  echo '<div class="item">';
-                  echo "<img src='".htmlspecialchars($img)."' alt='".htmlspecialchars($prod['name'])."'>";
-                  echo '<div class="flex-grow-1">';
-                  echo '<div class="fw-semibold">'.htmlspecialchars($prod['name']).'</div>';
-                  echo '<div class="small text-muted">Số lượng: '.intval($qty).' × '.number_format($prod['price'],0,',','.').' VNĐ</div>';
-                  echo '</div>';
-                  echo '</div>';
-                }
-                echo '<div class="footer">';
-                echo '<div><strong>Tổng:</strong> '.number_format($total,0,',','.').' VNĐ</div>';
-                echo '<div><a href="/weblaptop/cart.php" class="btn btn-sm btn-outline-secondary me-2">Xem giỏ</a><a href="/weblaptop/checkout.php" class="btn btn-sm btn-primary">Thanh toán</a></div>';
-                echo '</div>';
-              }
-            ?>
+  <div class="container">
+    <!-- Top Nav -->
+    <div class="d-flex justify-content-between nav-top">
+      <div class="d-flex gap-3">
+        <a href="/weblaptop/admin/products.php"><i class="bi bi-shop"></i> Kênh Người Bán</a>
+        <a href="#"><i class="bi bi-phone"></i> Tải ứng dụng</a>
+        <a href="#">Kết nối <i class="bi bi-facebook"></i> <i class="bi bi-instagram"></i></a>
+      </div>
+      <div class="d-flex gap-3 align-items-center">
+        <a href="/weblaptop/notifications.php"><i class="bi bi-bell"></i> Thông Báo</a>
+        <a href="/weblaptop/contact.php"><i class="bi bi-question-circle"></i> Hỗ Trợ</a>
+        <?php if (!empty($_SESSION["user_id"])): ?>
+          <div class="dropdown">
+            <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown"><?php echo htmlspecialchars($_SESSION["user_name"] ?? "Tài khoản"); ?></a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item text-dark" href="/weblaptop/account.php">Hồ sơ</a></li>
+              <li><a class="dropdown-item text-dark" href="/weblaptop/orders.php">Đơn mua</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-dark" href="/weblaptop/auth/logout.php">Đăng xuất</a></li>
+            </ul>
           </div>
+        <?php else: ?>
+          <a href="/weblaptop/auth/register.php" class="fw-bold">Đăng Ký</a>
+          <div style="width: 1px; height: 13px; background: rgba(255,255,255,.4);"></div>
+          <a href="/weblaptop/auth/login.php" class="fw-bold">Đăng Nhập</a>
+        <?php endif; ?>
+      </div>
+    </div>
+
+    <!-- Main Header -->
+    <div class="d-flex align-items-center mt-3">
+      <a href="/weblaptop" class="d-flex flex-column text-decoration-none">
+        <div class="fs-2 fw-bold d-flex align-items-center logo-text text-white">
+          <i class="bi bi-cpu-fill me-2 text-warning"></i> GrowTech
         </div>
+        <span class="slogan">Chuẩn công nghệ – vững niềm tin</span>
+      </a>
+      
+      <div class="search-bar-container" id="header-search">
+        <form action="/weblaptop/index.php" method="get" class="d-flex w-100">
+          <input type="text" name="q" id="header-search-input" class="search-input" placeholder="Tìm kiếm sản phẩm công nghệ đón Tết...">
+          <button type="submit" class="search-btn"><i class="bi bi-search"></i></button>
+        </form>
+        <div id="search-suggestions"></div>
       </div>
 
-      <?php if (!empty($_SESSION['user_id'])): ?>
-        <div class="user-menu dropdown">
-          <button class="btn btn-light dropdown-toggle" id="userMenuBtn" data-bs-toggle="dropdown" aria-expanded="false"><?php echo htmlspecialchars(isset($_SESSION['user_name'])?$_SESSION['user_name']:'Tài khoản'); ?></button>
-          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuBtn">
-            <li><a class="dropdown-item" href="/weblaptop/account.php">Thông tin tài khoản</a></li>
-            <li><a class="dropdown-item" href="/weblaptop/orders.php">Đơn hàng của tôi</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="/weblaptop/auth/logout.php">Đăng xuất</a></li>
-          </ul>
-        </div>
-      <?php else: ?>
-        <a href="/weblaptop/auth/login.php" class="btn btn-link">Đăng nhập</a>
-        <a href="/weblaptop/auth/register.php" class="btn btn-primary">Đăng ký</a>
-      <?php endif; ?>
+      <a href="/weblaptop/cart.php" class="cart-icon" id="header-cart-btn">
+        <i class="bi bi-cart3"></i>
+        <span class="cart-badge"><?php echo isset($_SESSION["cart"]) ? array_sum($_SESSION["cart"]) : 0; ?></span>
+      </a>
     </div>
   </div>
 </header>
 
-<!-- Navigation (desktop) -->
-<nav class="site-nav bg-white border-top" role="navigation" aria-label="Chức năng chính">
-  <div class="container">
-    <ul class="nav-list d-flex gap-2 align-items-center py-2">
-      <li class="nav-item"><a class="nav-link" href="/weblaptop">Trang chủ</a></li>
-      <li class="nav-item nav-dropdown">
-        <button class="nav-link btn btn-link dropdown-toggle" aria-expanded="false" aria-controls="catMenu">Danh mục</button>
-        <div id="catMenu" class="dropdown-menu p-3">
-          <div class="row g-2">
-            <div class="col-6 col-md-3"><a class="dropdown-item" href="/weblaptop?category=van-phong">Laptop Văn Phòng</a></div>
-            <div class="col-6 col-md-3"><a class="dropdown-item" href="/weblaptop?category=gaming">Laptop Gaming</a></div>
-            <div class="col-6 col-md-3"><a class="dropdown-item" href="/weblaptop?category=mong-nhe">Laptop Mỏng Nhẹ</a></div>
-            <div class="col-6 col-md-3"><a class="dropdown-item" href="/weblaptop?category=do-hoa">Laptop Đồ Họa</a></div>
-          </div>
-        </div>
-      </li>
-      <li class="nav-item"><a class="nav-link" href="/weblaptop/brands.php">Thương hiệu</a></li>
-      <li class="nav-item"><a class="nav-link" href="/weblaptop/sale.php">Khuyến mãi</a></li>
-      <li class="nav-item"><a class="nav-link" href="/weblaptop/blog.php">Tin tức</a></li>
-      <li class="nav-item"><a class="nav-link" href="/weblaptop/contact.php">Hỗ trợ</a></li>
-    </ul>
-  </div>
-</nav>
+<?php if (function_exists("display_flash")) display_flash(); ?>
 
-<!-- Mobile offcanvas menu (controlled by JS) -->
-<div id="mobileMenu" class="mobile-offcanvas" aria-hidden="true">
-  <div class="mobile-offcanvas-header d-flex align-items-center justify-content-between p-3 border-bottom">
-    <strong>Menu</strong>
-    <button id="mobileMenuClose" class="btn-close" aria-label="Đóng"></button>
-  </div>
-  <div class="mobile-offcanvas-body p-3">
-    <a href="/weblaptop" class="d-block py-2">Trang chủ</a>
-    <a href="/weblaptop?category=van-phong" class="d-block py-2">Laptop Văn Phòng</a>
-    <a href="/weblaptop?category=gaming" class="d-block py-2">Laptop Gaming</a>
-    <a href="/weblaptop/brands.php" class="d-block py-2">Thương hiệu</a>
-    <a href="/weblaptop/sale.php" class="d-block py-2">Khuyến mãi</a>
-    <a href="/weblaptop/contact.php" class="d-block py-2">Hỗ trợ</a>
-    <div class="mt-3">
-      <?php if (!empty($_SESSION['user_id'])): ?>
-        <a href="/weblaptop/account.php" class="d-block py-2">Tài khoản</a>
-        <a href="/weblaptop/auth/logout.php" class="d-block py-2">Đăng xuất</a>
-      <?php else: ?>
-        <a href="/weblaptop/auth/login.php" class="d-block py-2">Đăng nhập</a>
-        <a href="/weblaptop/auth/register.php" class="d-block py-2">Đăng ký</a>
-      <?php endif; ?>
-    </div>
-  </div>
-</div>
-
-<?php if (basename($_SERVER['PHP_SELF']) === 'index.php'): ?>
-  <div class="hero-banner mb-4">
-    <div id="homeCarousel" class="carousel slide" data-bs-ride="carousel">
-      <div class="carousel-inner">
-        <div class="carousel-item active">
-          <img src="https://via.placeholder.com/1200x350?text=Affordable+Laptops" class="d-block w-100" alt="...">
-          <div class="carousel-caption d-none d-md-block">
-            <h5>Mẫu mới nhất</h5>
-            <p>Laptop hiệu năng cao cho công việc và giải trí.</p>
-            <a href="/weblaptop" class="btn btn-primary">Mua ngay</a>
-          </div>
-        </div>
-        <div class="carousel-item">
-          <img src="https://via.placeholder.com/1200x350?text=Gaming+Series" class="d-block w-100" alt="...">
-          <div class="carousel-caption d-none d-md-block">
-            <h5>Dòng Gaming</h5>
-            <p>Card đồ họa mạnh và màn hình tốc độ cao.</p>
-            <a href="/weblaptop" class="btn btn-primary">Khám phá</a>
-          </div>
-        </div>
-      </div>
-      <button class="carousel-control-prev" type="button" data-bs-target="#homeCarousel" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Trước</span>
-      </button>
-      <button class="carousel-control-next" type="button" data-bs-target="#homeCarousel" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Sau</span>
-      </button>
-    </div>
-  </div>
-<?php endif; ?>
-
-<div class="container">
+<div class="container mt-4">
